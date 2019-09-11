@@ -1,67 +1,78 @@
 import React, {useEffect, useState} from 'react';
 import logo from './logo.svg';
 import './App.css';
-import io from "socket.io-client";
+import socketIOClient from "socket.io-client";
 import axios from 'axios';
 import { Table } from './components/table';
 
 function App() {
 
-  const [simbolos, setSimbolos] = useState([]);
+  let s = {"symbol":"UBER","sector":"mediaentertainment","securityType":"commonstock","bidPrice":0.0000,"bidSize":0,"askPrice":0.0000,"askSize":0,"lastUpdated":1568139135034,"lastSalePrice":1202.2900,"lastSaleSize":1,"lastSaleTime":1568139485170,"volume":12005,"marketPercent":0.01584,"seq":601};
 
+  const [properties, setProperties] = useState({
+    simbolos: []
+    ,indices: {}
+  });
+  
+  // const obtenerConcat = async (array) =>{
+  //   return array.map(e => e.symbol).join(",")
+  // }
 
-  const obtenerConcat = async (array) =>{
-    return array.map(e => e.symbol).join(",")
-  }
+  // const actualizarValor = async (simbolo, _simbolos, indices) =>{
+  //   const _simbolo = JSON.parse(simbolo);
+  //   _simbolos[indices[_simbolo.symbol]] = _simbolo;
+  //   setProperties({indices,simbolos: _simbolos})
+  // }
 
   useEffect(() =>{
-    // const socket = socketIOClient('https://ws-api.iextrading.com/1.0/tops');
-    // console.log("##",socket);
-    // socket.on("connect", data => {
-    //   console.log(data);
-    //   socket.emit('subscribe', 'fb')
-    // });
-
+    console.log("########################");
+    
     axios.get(`https://api.iextrading.com/1.0/tops`)
     .then(res => {
-      let datos = [];
+      let datos = []
+          ,_indices = {};
 
       if(res.data){
         datos = res.data
         .sort((a,b) => new Date(b.lastUpdated) - new Date(a.lastUpdated))
         .slice(0,50);
 
-        console.log("DATOS", datos);
-        
-        setSimbolos(datos);
-
-        obtenerConcat(datos).then(res => {
-          console.log("CONCAT", res)
-          
+        datos.forEach((d,i) => {
+          _indices = {..._indices, [d.symbol]:i }
         });
+        
+        setProperties({...properties, simbolos: datos,indices: _indices });
 
+        // obtenerConcat(datos)
+        // .then(res => {
+        //   // const socket = socketIOClient('https://ws-api.iextrading.com/1.0/tops');
+        //   // socket.on("connect", () => {
+        //   //   socket.emit('subscribe', res)
+        //   // });
+      
+        //   // socket.on('message', simbolo => {
+        //   //   actualizarValor(simbolo)
+
+        //   //   setInterval(() => {
+              
+        //   //   }, interval);
+        //   //   console.log("XXXX",simbolo)
+        //   // });
+
+        //   setInterval(( simbolos, indices) => {
+        //     s.lastSalePrice = Math.random();
+        //     actualizarValor(JSON.stringify(s), simbolos, indices)
+        //   }, 400, datos, _indices);
+
+        // });
         
       }
     })
-
-
-    setTimeout(() => {
-      setSimbolos([{"symbol":"SNAP","sector":"mediaentertainment","securityType":"commonstock","bidPrice":0,"bidSize":0,"askPrice":0,"askSize":0,"lastUpdated":1568059568165,"lastSalePrice":15.325,"lastSaleSize":100,"lastSaleTime":1568059194035,"volume":1711721,"marketPercent":0.03463}]);
-    }, 500);
-    // let socket = io.connect('https://ws-api.iextrading.com/1.0/tops');
-    // socket.on('connect', function() {
-      
-      
-    //   var ss = socket.emit('subscribe', 'fb');  
-    //   console.log("$$$", ss);
-      
-    // });
-
-  }, [])
+   }, [])
 
   return (
     <div className="App">
-      <Table simbolos={simbolos}></Table>
+      <Table simbolos={properties.simbolos}></Table>
     </div>
   );
 }
