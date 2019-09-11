@@ -1,13 +1,25 @@
 import React, {Fragment, useState, useEffect} from 'react';
 import socketIOClient from "socket.io-client";
+import { formatoDePesos } from '../../common/functions';
 
 export const Element = props =>{
+
+    const {
+        updateSimbolo,
+        indice
+    } = props;
+
     const [properties, setProperties] = useState({
-        simbolo : props.simbolo
+        simbolo : props.simbolo,
+        classColor: 'white'
     });
 
     const actualizar = async (properties, valor) =>{
-      setProperties({...properties, simbolo: valor})
+        const objetct = {...properties, simbolo: valor, classColor:'#1FDA71'};
+      setProperties(objetct);
+      setTimeout((obj) => {
+        setProperties({...obj,  classColor:'white'});
+      }, 500, objetct);
     }
 
     useEffect(() =>{
@@ -17,19 +29,18 @@ export const Element = props =>{
             });
 
             socket.on('message', _simbolo => {
-              actualizar(properties, JSON.parse(_simbolo))
-              console.log("SIM", _simbolo);
-              
+              actualizar(properties, JSON.parse(_simbolo));
+              updateSimbolo(_simbolo, indice)
             });
+
        }, [])
 
-
     return (
-        <tr>
+        <tr className={props.classElement} style={{backgroundColor: properties.classColor}}>
            <td>{properties.simbolo.symbol}</td>
            <td>{properties.simbolo.volume}</td>
-           <td>{properties.simbolo.lastSalePrice}</td>
-           <td>{properties.simbolo.bidPrice}</td>
+           <td>{formatoDePesos(properties.simbolo.lastSalePrice, 2)}</td>
+           <td>{formatoDePesos(properties.simbolo.bidPrice,2)}</td>
            <td>{properties.simbolo.marketPercent}</td>
            <td>{properties.simbolo.volume}</td>
            <td>{new Date(properties.simbolo.lastUpdated).toLocaleString()}</td>
