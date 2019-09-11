@@ -15,6 +15,10 @@ export const Table = props =>{
                         <th>Symbol</th>
                         <th>Volume</th>
                         <th>Price</th>
+                        <th>bad Price</th>
+                        <th>Mkt%</th>
+                        <th>Vol.</th>
+                        <th>Last Update</th>
                     </tr>
                 </thead>
                 <tbody>
